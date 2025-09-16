@@ -2,20 +2,56 @@
 Utility functions for the Tech Stock Tracker application.
 """
 
+import json
 import logging
 import sys
 from datetime import datetime
 from pathlib import Path
 
 
-def setup_logging(log_level: str = "INFO", log_file: str = None) -> logging.Logger:
+class StructuredFormatter(logging.Formatter):
     """
-    Set up logging configuration.
-    
+    Custom formatter that outputs structured JSON logs for better observability.
+    """
+
+    def format(self, record):
+        """Format log record as structured JSON."""
+        log_entry = {
+            "timestamp": self.formatTime(record, self.datefmt),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
+        }
+
+        # Add exception info if present
+        if record.exc_info:
+            log_entry["exception"] = self.formatException(record.exc_info)
+
+        # Add extra fields if present
+        if hasattr(record, 'stock_symbol'):
+            log_entry["stock_symbol"] = record.stock_symbol
+        if hasattr(record, 'operation'):
+            log_entry["operation"] = record.operation
+        if hasattr(record, 'duration'):
+            log_entry["duration_seconds"] = record.duration
+        if hasattr(record, 'request_id'):
+            log_entry["request_id"] = record.request_id
+
+        return json.dumps(log_entry)
+
+
+def setup_logging(log_level: str = "INFO", log_file: str = None, structured: bool = False) -> logging.Logger:
+    """
+    Set up logging configuration with optional structured logging.
+
     Args:
         log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
         log_file: Optional log file path
-        
+        structured: Whether to use structured JSON logging
+
     Returns:
         Configured logger instance
     """
@@ -23,26 +59,103 @@ def setup_logging(log_level: str = "INFO", log_file: str = None) -> logging.Logg
     if log_file:
         log_path = Path(log_file)
         log_path.parent.mkdir(exist_ok=True)
-    
+
     # Configure logging format
-    log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    date_format = "%Y-%m-%d %H:%M:%S"
-    
+    if structured:
+        formatter = StructuredFormatter(datefmt="%Y-%m-%dT%H:%M:%S")
+        console_formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
+    else:
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
+        )
+        console_formatter = formatter
+
+    # Create handlers
+    handlers = []
+
+    # Console handler (always human-readable)
+    console_handler = logging.StreamHandler(sys.stderr)
+    console_handler.setFormatter(console_formatter)
+    handlers.append(console_handler)
+
+    # File handler (structured if requested)
+    if log_file:
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setFormatter(formatter)
+        handlers.append(file_handler)
+
     # Configure root logger
     logging.basicConfig(
         level=getattr(logging, log_level.upper()),
-        format=log_format,
-        datefmt=date_format,
-        handlers=[
-            logging.StreamHandler(sys.stderr),
-            logging.FileHandler(log_file) if log_file else logging.NullHandler()
-        ]
+        handlers=handlers,
+        force=True  # Override any existing configuration
     )
-    
+
     # Get logger for this application
     logger = logging.getLogger("stock_tracker")
-    
+
     return logger
+
+
+def create_structured_log_record(logger: logging.Logger, level: int, message: str, **kwargs):
+    """
+    Create a structured log record with additional context.
+
+    Args:
+        logger: Logger instance
+        level: Log level (logging.INFO, logging.ERROR, etc.)
+        message: Log message
+        **kwargs: Additional structured fields
+    """
+    record = logger.makeRecord(
+        logger.name, level, __file__, 0, message, (), None
+    )
+
+    # Add structured fields
+    for key, value in kwargs.items():
+        setattr(record, key, value)
+
+    logger.handle(record)
+
+
+def log_stock_operation(logger: logging.Logger, operation: str, symbol: str = None,
+                       duration: float = None, success: bool = True, **kwargs):
+    """
+    Log a stock-related operation with structured context.
+
+    Args:
+        logger: Logger instance
+        operation: Operation name (e.g., 'fetch_stock', 'refresh_data')
+        symbol: Stock symbol (optional)
+        duration: Operation duration in seconds (optional)
+        success: Whether the operation was successful
+        **kwargs: Additional context fields
+    """
+    level = logging.INFO if success else logging.ERROR
+    message = f"Stock operation: {operation}"
+
+    context = {
+        'operation': operation,
+        'success': success,
+        **kwargs
+    }
+
+    if symbol:
+        context['stock_symbol'] = symbol
+        message += f" for {symbol}"
+
+    if duration is not None:
+        context['duration'] = duration
+        message += f" ({duration:.3f}s)"
+
+    if not success:
+        message += " FAILED"
+
+    create_structured_log_record(logger, level, message, **context)
 
 
 def format_currency(amount: float, precision: int = 2) -> str:
