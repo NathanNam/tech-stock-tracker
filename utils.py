@@ -80,42 +80,24 @@ def setup_logging(log_level: str = "INFO", log_file: str = None, structured: boo
         date_format = "%Y-%m-%d %H:%M:%S"
         formatter = logging.Formatter(log_format, date_format)
 
-    # Get logger for this application and configure level/propagation
-    logger = logging.getLogger("stock_tracker")
-    logger.setLevel(getattr(logging, log_level.upper()))
-    logger.propagate = True
-
-    def _find_matching_handler(new_handler: logging.Handler):
-        """Return an existing handler that matches the new handler, if any."""
-        for existing in logger.handlers:
-            if type(existing) is not type(new_handler):
-                continue
-
-            if isinstance(new_handler, logging.FileHandler):
-                if getattr(existing, "baseFilename", None) == getattr(
-                    new_handler, "baseFilename", None
-                ):
-                    return existing
-            elif isinstance(new_handler, logging.StreamHandler):
-                if getattr(existing, "stream", None) is getattr(
-                    new_handler, "stream", None
-                ):
-                    return existing
-        return None
-
-    # Create handlers and attach them if not already present
+    # Create handlers
     handlers = [logging.StreamHandler(sys.stderr)]
     if log_file:
         handlers.append(logging.FileHandler(log_file))
 
+    # Apply formatter to all handlers
     for handler in handlers:
         handler.setFormatter(formatter)
-        matching_handler = _find_matching_handler(handler)
-        if matching_handler:
-            matching_handler.setFormatter(formatter)
-            handler.close()
-        else:
-            logger.addHandler(handler)
+
+    # Configure root logger
+    logging.basicConfig(
+        level=getattr(logging, log_level.upper()),
+        handlers=handlers,
+        force=True  # Override any existing configuration
+    )
+
+    # Get logger for this application
+    logger = logging.getLogger("stock_tracker")
 
     return logger
 
