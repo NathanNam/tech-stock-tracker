@@ -6,6 +6,7 @@ A web-based application that displays real-time stock prices for major technolog
 
 import asyncio
 import logging
+import os
 from datetime import datetime
 from flask import Flask, render_template, jsonify, request
 from threading import Thread
@@ -253,7 +254,7 @@ if __name__ == '__main__':
     logger.info("Starting Flask development server...")
     app.run(
         debug=True,
-        host='127.0.0.1',
-        port=8080,
+        host='0.0.0.0',
+        port=int(os.getenv('PORT', 8080)),
         threaded=True
     )
