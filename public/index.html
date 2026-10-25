@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="format-detection" content="telephone=no">
+<title>Tech Terminal</title>
+<meta name="description" content="A trading-terminal-style board for big tech stocks: live quotes, sparklines and 1D–1Y charts. Bring your own Finnhub key, or use Yahoo Finance data.">
+<meta name="theme-color" content="#000000">
+<link rel="canonical" href="https://tech-stock-tracker.vercel.app/">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="/favicon.ico" sizes="any">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Tech Terminal">
+<meta property="og:title" content="Tech Terminal">
+<meta property="og:description" content="Big tech stocks on a trading-terminal board: live quotes, sparklines and 1D–1Y charts.">
+<meta property="og:url" content="https://tech-stock-tracker.vercel.app/">
+<meta property="og:image" content="https://tech-stock-tracker.vercel.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Tech Terminal: amber-on-black board of tech stock quotes with sparklines and a price chart">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:creator" content="@nathannam">
+<meta name="twitter:title" content="Tech Terminal">
+<meta name="twitter:description" content="Big tech stocks on a trading-terminal board: live quotes, sparklines and 1D–1Y charts.">
+<meta name="twitter:image" content="https://tech-stock-tracker.vercel.app/og.png">
+<link rel="preload" href="/fonts/ibm-plex-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top">
+  <div class="brand">TECH TERMINAL</div>
+  <label class="cmd">&gt;
+    <input id="cmd" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Ticker <GO> · HELP" aria-label="Command: type a ticker and press Enter">
+  </label>
+  <div class="clock"><span class="lbl">NEW YORK </span><span id="clock">--:--:--</span> ET · <b id="mkt">—</b></div>
+</header>
+<div class="tape" aria-hidden="true"><div class="tape-in" id="tape"></div></div>
+<section class="idx" aria-label="Market summary">
+  <div><div class="k">S&amp;P 500 · SPY</div><div class="v" id="spy">—</div></div>
+  <div><div class="k">NASDAQ-100 · QQQ</div><div class="v" id="qqq">—</div></div>
+  <div><div class="k">ADVANCERS</div><div class="v" id="adv">—</div></div>
+  <div><div class="k">LAST UPDATE</div><div class="v" id="upd" style="font-size:14px;padding-top:3px">—</div></div>
+</section>
+<main class="main">
+  <section class="list" aria-label="Watchlist">
+    <div class="ph">WATCHLIST <em id="lhint">—</em></div>
+    <table>
+      <thead><tr>
+        <th><button data-sort="sym">TICKER</button></th>
+        <th><button data-sort="last">LAST</button></th>
+        <th class="hide-xs"><button data-sort="chg">CHG</button></th>
+        <th><button data-sort="pct">%CHG</button></th>
+        <th class="hide-sm"><button data-sort="vol">VOLUME</button></th>
+        <th class="hide-sm cap"><button data-sort="mcap">MKT CAP</button></th>
+        <th>1D</th>
+      </tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+  </section>
+  <section class="chart" aria-label="Chart">
+    <div class="ct"><h2 id="c-sym">—</h2><span class="p" id="c-px"></span><span id="c-chg"></span></div>
+    <div class="sub" id="c-name"></div>
+    <div class="rng" role="group" aria-label="Chart range">
+      <button data-range="1d" class="on">1D</button><button data-range="5d">5D</button><button data-range="1mo">1M</button><button data-range="1y">1Y</button>
+    </div>
+    <div class="plot" id="plot"><svg id="svg" viewBox="0 0 560 260" role="img" aria-label="Price chart"></svg><div class="tip" id="tip" hidden></div></div>
+    <div class="stats" id="stats"></div>
+  </section>
+</main>
+<nav class="fkeys" aria-label="Function keys">
+  <button data-f="help"><b>F1</b>HELP</button>
+  <button data-f="sort"><b>F2</b>SORT</button>
+  <button data-f="range"><b>F3</b>1D/5D/1M/1Y</button>
+  <button data-f="add"><b>F4</b>ADD TICKER</button>
+  <button data-f="refresh"><b>F5</b>REFRESH</button>
+  <button data-f="key"><b>F6</b>FINNHUB KEY</button>
+</nav>
+<footer class="foot">
+  <span class="src" id="src">SOURCE: —</span>
+  <span>Not investment advice · inspired by trading terminals, not affiliated with any · <a href="https://www.nathannam.com">Nathan Nam</a> · <a href="https://github.com/NathanNam/tech-stock-tracker">code</a></span>
+</footer>
+
+<dialog id="dlg-key">
+  <h3>FINNHUB KEY</h3>
+  <form class="b" method="dialog" id="key-form">
+    <p>Paste your free <a href="https://finnhub.io/register" target="_blank" rel="noopener" style="color:var(--amber)">Finnhub</a> API key for real-time quotes and market caps.</p>
+    <p class="m">The key stays in this tab's memory and is sent only to Finnhub. It isn't saved anywhere or sent to this site's server; reloading the page forgets it. Charts and volume still come from Yahoo Finance.</p>
+    <input id="key-in" type="password" autocomplete="off" spellcheck="false" placeholder="Finnhub API key" aria-label="Finnhub API key">
+    <div class="msg" id="key-msg"></div>
+    <div class="row">
+      <button type="button" id="key-clear">USE YAHOO</button>
+      <button type="button" id="key-cancel">CANCEL</button>
+      <button type="submit" class="go">USE KEY</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="dlg-help">
+  <h3>HELP</h3>
+  <div class="b">
+    <dl>
+      <dt>AAPL ⏎</dt><dd>Show a ticker; adds it to the watchlist if new (also AAPL &lt;GO&gt;)</dd>
+      <dt>DEL AAPL</dt><dd>Remove a ticker from the watchlist</dd>
+      <dt>1D 5D 1M 1Y</dt><dd>Chart range</dd>
+      <dt>SORT PCT</dt><dd>Sort by PCT, CHG, LAST, VOL, MCAP or SYM</dd>
+      <dt>KEY</dt><dd>Add your Finnhub key (this tab only)</dd>
+      <dt>RESET</dt><dd>Back to the default watchlist</dd>
+      <dt>/ · ↑ ↓</dt><dd>Jump to the command line · move through the watchlist</dd>
+      <dt>F1–F6</dt><dd>The function keys along the bottom</dd>
+    </dl>
+    <p class="m" style="margin-top:12px">Quotes refresh every minute while the market is open. Your watchlist is saved in this browser; your key never is.</p>
+    <div class="row"><button type="button" class="go" id="help-close">CLOSE</button></div>
+  </div>
+</dialog>
+
+<script src="/app.js" type="module"></script>
+<script defer src="/_vercel/insights/script.js"></script>
+</body>
+</html>
