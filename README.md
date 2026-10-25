@@ -2,7 +2,7 @@
 
 Big tech stocks on a trading-terminal board: amber on black, a ticker tape, a command line, function keys, sparklines and 1D / 5D / 1M / 1Y charts. Inspired by trading terminals; not affiliated with any.
 
-**Live:** https://tech-stock-tracker.vercel.app
+**Live:** https://techterminal.vercel.app
 
 ![Tech Terminal](docs/screenshot.png)
 
