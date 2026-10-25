@@ -1,4 +1,4 @@
-# Ignore virtual environment
-venv/
-__pycache__
-logs/
+node_modules/
+.vercel/
+.env*
+.DS_Store
