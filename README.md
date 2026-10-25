@@ -11,7 +11,9 @@ Default watchlist: NVDA, AAPL, MSFT, GOOGL, AMZN, META, AVGO, TSM (TSMC ADR), SK
 ## Where the data comes from
 
 - **Without a key:** quotes, charts and volume come from Yahoo Finance's chart data, through a small Vercel function (`api/yahoo.mjs`) that caches responses at the edge (60 s for quotes, up to an hour for daily charts). It's an unofficial source and can change or be rate-limited without notice.
-- **With your own Finnhub key:** press **F6** (or type `KEY`) and paste a free key from [finnhub.io](https://finnhub.io/register). Quotes and market caps then come from Finnhub, called straight from your browser. The key is kept only in that tab's memory: it isn't saved (no localStorage, cookies or server), isn't sent to this site, and is forgotten when you reload. Charts and volume still come from Yahoo, because Finnhub's free plan has no price history; non-US listings (like `000660.KS`) always do.
+- **With your own Finnhub key:** press **F6** (or type `KEY`) and paste a free key from [finnhub.io](https://finnhub.io/register). Quotes and market caps then come from Finnhub, called straight from your browser. The key is kept only in that tab's memory: it isn't saved (no localStorage, cookies or server), isn't sent to this site, and is forgotten when you reload. To stop using it sooner, press **F6 → USE YAHOO** or type `KEY OFF`.
+
+The site sends a strict Content-Security-Policy (`vercel.json`): the page may only run its own scripts and may only send data to itself and `finnhub.io`, so even a bug couldn't send a key anywhere else. Charts and volume still come from Yahoo, because Finnhub's free plan has no price history; non-US listings (like `000660.KS`) always do.
 
 Not investment advice.
 
@@ -23,7 +25,7 @@ Not investment advice.
 | `DEL AAPL` | Remove it |
 | `1D` `5D` `1M` `1Y` | Chart range |
 | `SORT PCT` | Sort by `PCT`, `CHG`, `LAST`, `VOL`, `MCAP` (with a key) or `SYM` |
-| `KEY` · `HELP` · `RESET` | Finnhub key · help · default watchlist |
+| `KEY` · `KEY OFF` · `HELP` · `RESET` | Finnhub key · forget the key · help · default watchlist |
 
 Keys: **F1** help · **F2** sort · **F3** range · **F4** add · **F5** refresh · **F6** Finnhub key · **/** command line · **↑ ↓** move through the list. On phones the function keys are buttons along the bottom.
 

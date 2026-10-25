@@ -42,7 +42,7 @@
   <div><div class="k">S&amp;P 500 · SPY</div><div class="v" id="spy">—</div></div>
   <div><div class="k">NASDAQ-100 · QQQ</div><div class="v" id="qqq">—</div></div>
   <div><div class="k">ADVANCERS</div><div class="v" id="adv">—</div></div>
-  <div><div class="k">LAST UPDATE</div><div class="v" id="upd" style="font-size:14px;padding-top:3px">—</div></div>
+  <div><div class="k">LAST UPDATE</div><div class="v upd" id="upd">—</div></div>
 </section>
 <main class="main">
   <section class="list" aria-label="Watchlist">
@@ -86,8 +86,8 @@
 <dialog id="dlg-key">
   <h3>FINNHUB KEY</h3>
   <form class="b" method="dialog" id="key-form">
-    <p>Paste your free <a href="https://finnhub.io/register" target="_blank" rel="noopener" style="color:var(--amber)">Finnhub</a> API key for real-time quotes and market caps.</p>
-    <p class="m">The key stays in this tab's memory and is sent only to Finnhub. It isn't saved anywhere or sent to this site's server; reloading the page forgets it. Charts and volume still come from Yahoo Finance.</p>
+    <p>Paste your free <a href="https://finnhub.io/register" target="_blank" rel="noopener" class="amber">Finnhub</a> API key for real-time quotes and market caps.</p>
+    <p class="m">The key stays in this tab's memory and is sent only to Finnhub. It isn't saved anywhere or sent to this site's server. To stop using it, click USE YAHOO, type KEY OFF, or reload the page. Charts and volume still come from Yahoo Finance.</p>
     <input id="key-in" type="password" autocomplete="off" spellcheck="false" placeholder="Finnhub API key" aria-label="Finnhub API key">
     <div class="msg" id="key-msg"></div>
     <div class="row">
@@ -105,12 +105,12 @@
       <dt>DEL AAPL</dt><dd>Remove a ticker from the watchlist</dd>
       <dt>1D 5D 1M 1Y</dt><dd>Chart range</dd>
       <dt>SORT PCT</dt><dd>Sort by PCT, CHG, LAST, VOL, MCAP or SYM</dd>
-      <dt>KEY</dt><dd>Add your Finnhub key (this tab only)</dd>
+      <dt>KEY · KEY OFF</dt><dd>Add your Finnhub key (this tab only) · forget it and go back to Yahoo</dd>
       <dt>RESET</dt><dd>Back to the default watchlist</dd>
       <dt>/ · ↑ ↓</dt><dd>Jump to the command line · move through the watchlist</dd>
       <dt>F1–F6</dt><dd>The function keys along the bottom</dd>
     </dl>
-    <p class="m" style="margin-top:12px">Quotes refresh every minute while the market is open. Your watchlist is saved in this browser; your key never is.</p>
+    <p class="m gap">Quotes refresh every minute while the market is open. Your watchlist is saved in this browser; your key never is.</p>
     <div class="row"><button type="button" class="go" id="help-close">CLOSE</button></div>
   </div>
 </dialog>
