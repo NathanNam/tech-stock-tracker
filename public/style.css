@@ -12,6 +12,8 @@ html { -webkit-text-size-adjust: 100%; }
 body { margin: 0; background: var(--bg); color: var(--txt); font: 13px/1.35 "Plex Mono", ui-monospace, Menlo, monospace; min-height: 100vh; display: flex; flex-direction: column; }
 button { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
 .u { color: var(--up); } .d { color: var(--down); } .m { color: var(--mute); }
+.amber { color: var(--amber); } .link { text-decoration: underline; } .gap { margin-top: 12px; }
+.v.upd { font-size: 14px; padding-top: 3px; }
 
 /* top bar */
 .top { display: flex; align-items: stretch; border-bottom: 1px solid var(--line); background: var(--bar); }

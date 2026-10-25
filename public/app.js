@@ -202,7 +202,7 @@ function render() {
   const fin = Object.values(q).some((r) => r.source === 'finnhub');
   $('src').innerHTML = state.key
     ? `SOURCE: <b>FINNHUB</b> (your key, this tab only)${fin ? '' : ' · waiting'} · charts, volume${state.list.some((s) => !isUS(s)) ? ' &amp; non-US' : ''}: Yahoo Finance`
-    : `SOURCE: <b>YAHOO FINANCE</b> (unofficial) · <button id="src-key" style="color:var(--amber);text-decoration:underline">use your Finnhub key</button>`;
+    : `SOURCE: <b>YAHOO FINANCE</b> (unofficial) · <button id="src-key" class="amber link">use your Finnhub key</button>`;
   $('src-key')?.addEventListener('click', openKey);
 
   renderChartHeader();
@@ -361,6 +361,7 @@ function run(raw) {
   if (!t) return;
   const [cmd, ...rest] = t.split(/\s+/), arg = TYPED[rest.join(' ')] || rest.join('');
   if (cmd === 'HELP' || t === '?') return $('dlg-help').showModal();
+  if (cmd === 'KEY' && arg === 'OFF') { state.key = null; for (const q of Object.values(state.quotes)) q.source = 'yahoo'; flash('Finnhub key forgotten; using Yahoo Finance.'); return refresh(); }
   if (cmd === 'KEY') return openKey();
   if (cmd === 'RESET') { state.list = [...DEFAULT_LIST]; saveList(); state.sel = state.list[0]; flash('Watchlist reset.'); return refresh(); }
   if (cmd === 'REFRESH') return refresh();
